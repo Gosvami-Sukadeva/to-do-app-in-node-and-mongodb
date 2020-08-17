@@ -17,6 +17,19 @@ function addNewTodo(todosCollection,title){
     
 }
 
+function showAllTodos(todosCollection){
+    todosCollection.find({}).toArray((err, todos)=> {
+        if (err){
+            console.log('Błąd podczas pobierania!', err)
+        }else {
+            for(const todo of todos){
+                console.log(`- ${todo.title} - ${todo.done ? 'Zakończony' : 'Do zrobienia'}`)
+            }
+        }
+        client.close();
+    })
+}
+
 
 function doTheToDo(todosCollection) {
 const [command, ...args] = process.argv.splice(2);
@@ -24,6 +37,9 @@ switch(command){
     case 'add':
         addNewTodo(todosCollection, args[0]);
         break;
+        case 'list':
+            showAllTodos(todosCollection);
+            break;
 }
     // client.close();
 }
