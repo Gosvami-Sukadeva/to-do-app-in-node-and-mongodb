@@ -22,24 +22,71 @@ function showAllTodos(todosCollection){
         if (err){
             console.log('Błąd podczas pobierania!', err)
         }else {
-            for(const todo of todos){
-                console.log(`- ${todo.title} - ${todo.done ? 'Zakończony' : 'Do zrobienia'}`)
+const todosToDo = todos.filter(todo => !todo.done)
+const todosDone = todos.filter(todo => todo.done)
+
+console.log(`# Lista zadań do zrobienia (niezakończone) : ${todosToDo.length}`);
+
+
+for(const todo of todosToDo){
+console.log(`- [${todo._id}] ${todo.title}`)
+}
+console.log(`# Lista zadań zrobionych (zakończone) : ${todosDone.length}`)
+
+
+            for(const todo of todosDone){
+                console.log(`- [${todo._id}] ${todo.title}`)
             }
+
         }
         client.close();
     })
 }
 
 
+function markTaskAsDone(todosCollection, id){
+    todosCollection.find({
+        _id: mongo.ObjectID(id),
+    }).toArray((err, todos) => {
+if(err){
+    console.log('Błąd podczas pobierania!', err);
+}else if(todos.length !== 1){
+    console.log('Nie ma takiego zadania!')
+}else {
+
+
+
+        todosCollection.updateOne({
+            _id: mongo.ObjectID(id),
+        }, {
+            $set: {
+                done: true,
+            },
+        }, err => {
+            if (err){
+                console.log('Błąd podczas ustawiania zakończenia!', err)
+            }else {
+                console.log('Zadanie oznaczone jako zakończone.')
+            }
+            client.close();
+        } )
+    }
+    })
+
+}
+
 function doTheToDo(todosCollection) {
 const [command, ...args] = process.argv.splice(2);
 switch(command){
     case 'add':
-        addNewTodo(todosCollection, args[0]);
-        break;
-        case 'list':
-            showAllTodos(todosCollection);
-            break;
+    addNewTodo(todosCollection, args[0]);
+    break;
+    case 'list':
+    showAllTodos(todosCollection);
+    break;
+    case 'done':
+    markTaskAsDone(todosCollection, args[0]);
+    break;
 }
     // client.close();
 }
