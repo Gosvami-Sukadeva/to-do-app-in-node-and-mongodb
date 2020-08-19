@@ -49,10 +49,21 @@ function markTaskAsDone(todosCollection, id){
         _id: mongo.ObjectID(id),
     }).toArray((err, todos) => {
 if(err){
+
     console.log('Błąd podczas pobierania!', err);
+
 }else if(todos.length !== 1){
+
     console.log('Nie ma takiego zadania!')
-}else {
+    client.close();
+
+}else if(todos[0].done){
+
+    console.log('To zadanie było juz zakończone!')
+    client.close();
+    
+}
+else {
 
 
 
@@ -75,6 +86,39 @@ if(err){
 
 }
 
+function deleteTask(todosCollection, id){
+    todosCollection.find({
+        _id: mongo.ObjectID(id),
+    }).toArray((err, todos) => {
+if(err){
+
+    console.log('Błąd podczas pobierania!', err);
+
+}else if(todos.length !== 1){
+
+    console.log('Nie ma takiego zadania!')
+    client.close();
+
+}
+else {
+
+
+
+        todosCollection.deleteOne({
+            _id: mongo.ObjectID(id),
+        }, err => {
+            if (err){
+                console.log('Błąd podczas usuwania!', err)
+            }else {
+                console.log('Zadanie usunięte.')
+            }
+            client.close();
+        } )
+    }
+    })
+
+}
+
 function doTheToDo(todosCollection) {
 const [command, ...args] = process.argv.splice(2);
 switch(command){
@@ -86,6 +130,9 @@ switch(command){
     break;
     case 'done':
     markTaskAsDone(todosCollection, args[0]);
+    break;
+    case 'delete':
+    deleteTask(todosCollection, args[0]);
     break;
 }
     // client.close();
