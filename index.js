@@ -119,6 +119,25 @@ else {
 
 }
 
+function deleteAllDoneTasks(todosCollection){
+
+
+
+
+        todosCollection.deleteMany({
+            done: true,
+        }, err => {
+            if (err){
+                console.log('Błąd podczas usuwania!', err)
+            }else {
+                console.log('Wyczyszczono zakończone zadania o ile takie były.')
+            }
+            client.close();
+        } )
+    
+    
+}
+
 function doTheToDo(todosCollection) {
 const [command, ...args] = process.argv.splice(2);
 switch(command){
@@ -134,6 +153,24 @@ switch(command){
     case 'delete':
     deleteTask(todosCollection, args[0]);
     break;
+    case 'cleanup':
+        deleteAllDoneTasks(todosCollection);
+        break;
+    default:
+        console.log(`
+        ### Lista TO DO - MongoDB ###
+        
+        Dostępne komendy:
+
+        add <nazwa zadania> - dodaje zadanie do wykonania
+        list  - wyświetl zadania
+        done <id zadania> - oznacz wybrane zadanie jako zakończone
+        delete <id zadania> - usuń wybrane zadanie
+        cleanup - usuń zakończone zadania, jeżeli istnieją
+        `)
+
+    client.close();
+        break;
 }
     // client.close();
 }
